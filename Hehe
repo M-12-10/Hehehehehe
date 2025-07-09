@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Congrats!!!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        /* Custom font classes for a goofy feel */
+        .font-luckiest-guy { font-family: 'Luckiest Guy', cursive; }
+        .font-fredoka-one { font-family: 'Fredoka One', cursive; }
+
+        /* Keyframe animations */
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.3) translateY(-50px); }
+            50% { opacity: 1; transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Applying animations */
+        .animate-bounce-in { animation: bounceIn 1s ease-out forwards; }
+        .animate-fade-in-delayed { animation: fadeIn 1s ease-out 0.5s forwards; opacity: 0; }
+        .animate-wiggle { animation: wiggle 2s infinite ease-in-out; }
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Canvas for particle animation */
+        #particle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-cyan-300 via-yellow-300 to-pink-400">
+    <canvas id="particle-canvas"></canvas>
+    <div class="relative min-h-screen flex flex-col items-center justify-center text-center p-4 overflow-hidden">
+        
+        <!-- Main Content Container -->
+        <div class="relative z-10 bg-white/60 backdrop-blur-sm p-8 md:p-12 rounded-3xl shadow-2xl max-w-2xl w-full transform -rotate-2">
+            
+            <!-- Main Heading -->
+            <h1 class="text-5xl md:text-7xl font-luckiest-guy tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 animate-bounce-in">
+                CONGRATS, YOU DID IT!!!
+            </h1>
+            
+            <!-- Subheading -->
+            <p class="mt-6 text-2xl md:text-3xl font-fredoka-one text-indigo-700 animate-fade-in-delayed">
+                You survived the day, Maryam, cutu, my PRETTIEST girl!
+            </p>
+
+            <!-- Fun decorative element -->
+            <div class="mt-8 text-6xl animate-wiggle animate-fade-in-delayed">
+                🤪🎉
+            </div>
+
+            <!-- Gemini API Feature Section -->
+            <div id="pep-talk-section" class="mt-8 animate-fade-in-delayed">
+                <button id="pep-talk-button" class="bg-gradient-to-r from-orange-400 to-rose-400 text-white font-bold py-3 px-6 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out">
+                    ✨ Get a Goofy Pep Talk! ✨
+                </button>
+                <div id="loading-indicator" class="hidden mt-4 flex justify-center items-center">
+                    <div class="spinner h-8 w-8 rounded-full border-4 border-t-purple-500 border-gray-200"></div>
+                    <p class="ml-3 font-fredoka-one text-indigo-700">Cooking up some fun...</p>
+                </div>
+                <div id="pep-talk-result" class="hidden mt-4 p-4 bg-purple-100 border-2 border-dashed border-purple-400 rounded-lg">
+                    <p class="font-fredoka-one text-purple-800"></p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Goofy bouncing ball animation script
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let w = canvas.width = window.innerWidth;
+        let h = canvas.height = window.innerHeight;
+
+        const particles = [];
+        const particleCount = 50;
+        const colors = ['#22d3ee', '#fde047', '#f472b6', '#4ade80', '#818cf8']; // Bright, fun colors
+        const gravity = 0.2;
+
+        function Particle() {
+            this.x = Math.random() * w;
+            this.y = Math.random() * h / 2;
+            this.r = Math.random() * 15 + 10;
+            this.color = colors[Math.floor(Math.random() * colors.length)];
+            this.vx = (Math.random() - 0.5) * 8;
+            this.vy = (Math.random() - 0.5) * 8;
+        }
+
+        Particle.prototype.draw = function() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+        };
+
+        Particle.prototype.update = function() {
+            this.vy += gravity;
+            this.x += this.vx;
+            this.y += this.vy;
+            if (this.x + this.r > w || this.x - this.r < 0) this.vx *= -0.9;
+            if (this.y + this.r > h) {
+                this.y = h - this.r;
+                this.vy *= -0.8;
+            }
+        };
+
+        function initParticles() {
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, w, h);
+            for (let i = 0; i < particleCount; i++) {
+                const p = particles[i];
+                p.update();
+                p.draw();
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        window.addEventListener('resize', () => {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+            particles.length = 0;
+            initParticles();
+        });
+
+        initParticles();
+        animateParticles();
+
+        // --- Gemini API Integration ---
+        const pepTalkButton = document.getElementById('pep-talk-button');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const pepTalkResult = document.getElementById('pep-talk-result');
+        const pepTalkText = pepTalkResult.querySelector('p');
+
+        pepTalkButton.addEventListener('click', async () => {
+            // Show loading and hide button/previous result
+            loadingIndicator.classList.remove('hidden');
+            pepTalkButton.classList.add('hidden');
+            pepTalkResult.classList.add('hidden');
+
+            try {
+                // The prompt for the Gemini API, now with stricter instructions
+                const prompt = "Write a short, goofy, and super encouraging pep talk for Maryam in Pakistani Punjabi (written in Roman script). She just survived a tough day and needs a laugh. Keep it under 50 words, make it funny, and start with 'Oye Maryam!' or something similarly playful in Punjabi. IMPORTANT: Only return the Punjabi message. Do not include any introductory text like 'Okay, here you go:'.";
+                
+                let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                const payload = { contents: chatHistory };
+                const apiKey = "AIzaSyDNc6HpsW1N1tsPurVyisu3TiYCQlvxiEw"; // API key is handled by the environment
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API error! Status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                let text = "Pep talk lenn vich masla hogaya, par tusi great ho!";
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    text = result.candidates[0].content.parts[0].text;
+                }
+                
+                // Display the result
+                pepTalkText.innerText = text;
+                pepTalkResult.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Error fetching pep talk:", error);
+                pepTalkText.innerText = "Oops! Pep talk machine sutt gayi ae. Par yaad rakho, tusi din fatah kar lia ae!";
+                pepTalkResult.classList.remove('hidden');
+            } finally {
+                // Hide loading and show the button again
+                loadingIndicator.classList.add('hidden');
+                pepTalkButton.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
